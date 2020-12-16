@@ -10,13 +10,21 @@ import os
 
 
 def acquire_params(filename):
+    """
+    Загрузка параметров из файла
+    """
 
     with open(filename, 'r') as param_file:
         params = json.loads(param_file.read())
 
     return params
 
+# Validate Inputs
+
 def validate_params(param_dict, float_keys, int_keys, str_keys):
+    """
+    Проверка параметров на адекватность
+    """
 
     all_keys = float_keys + int_keys + str_keys
     for key in all_keys:
@@ -36,15 +44,19 @@ def validate_params(param_dict, float_keys, int_keys, str_keys):
             raise ValueError('Parameter {} is not specified as a string.'.format(key))
 
 
+# define the system of differential equations
+
 class SEIR:
 
     def __init__(self, beta, mu, sigma, gamma, omega, start_S, start_E, start_I, start_R, duration, outdir):
 
-        self.beta = beta  # transmission rate
-        self.mu = mu  # death rate from infection
-        self.sigma = sigma  # rate E -> I
-        self.gamma = gamma  # recovery rate
-        self.omega = omega  # waning immunity
+        # Параметры модели SEIR
+
+        self.beta = beta       # transmission rate
+        self.mu = mu           # death rate from infection
+        self.sigma = sigma     # rate E -> I
+        self.gamma = gamma     # recovery rate
+        self.omega = omega     # waning immunity
         self.start_S = start_S
         self.start_E = start_E
         self.start_I = start_I
@@ -54,6 +66,8 @@ class SEIR:
         self.R = [self.start_S, self.start_E, self.start_I, self.start_R]
 
     def seir(self, x, t):
+
+        # Диф.уравнение SEIR для одного шага
 
         S = x[0]
         E = x[1]
@@ -70,6 +84,9 @@ class SEIR:
         return y
 
     def integrate(self):
+        """
+        Функция интегрирования диф.уравнения
+        """
 
         time = np.arange(0, self.duration, 0.01)
         results = scipy.integrate.odeint(self.seir, self.R, time)
@@ -96,6 +113,8 @@ class SEIR:
         plt.show()
 
 def main(opts):
+
+    # Запуск проверки модели
 
     pars = acquire_params(opts.paramfile)
 
